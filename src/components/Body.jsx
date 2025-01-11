@@ -10,32 +10,12 @@ function withNavigation(Component) {
   };
 }
 
-function Body() {
+function Body({colorMap}) {
   const navigate = useNavigate();
   const [r1, setR1] = useState(0);
   const [r2, setR2] = useState(21);
   const [pokeName, setpokeName] = useState("");
   const [pokemonResponse, setpokemonResponse] = useState([]);
-  const [colormap, setcolorMap] = useState({
-    electric: "yellow",
-    water: "blue",
-    fire: "red",
-    grass: "green",
-    psychic: "purple",
-    ice: "cyan",
-    rock: "gray",
-    ground: "brown",
-    flying: "skyblue",
-    bug: "limegreen",
-    dragon: "orange",
-    dark: "black",
-    fairy: "pink",
-    normal: "beige",
-    fighting: "maroon",
-    ghost: "indigo",
-    steel: "silver",
-    poison: "violet",
-  });
   useEffect(()=>{
     fetchPokemon();
   },[]);
@@ -126,7 +106,8 @@ function Body() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-5 justify-items-center">
         {pokemonResponse.slice(r1,r2).map((pokemon, index) => {
-          const typeColor = colormap[pokemon.type] || "white";
+          const typeColor = colorMap[pokemon.type.toLowerCase()] || "white";
+          console.log("Cor correspondente:", colorMap[pokemon.type.toLowerCase()]);
           return (
             <div
               className="grid bg-slate-200 w-[300px] y-[500px] rounded-3xl justify-items-center m-4 shadow-lg"

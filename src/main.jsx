@@ -6,6 +6,7 @@ import "./App.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { element } from "prop-types";
 import Detalhes from "./pages/Detalhes.jsx";
+import { colorMap } from "./components/utils.jsx";
 
 const router = createBrowserRouter([
   {
@@ -14,12 +15,12 @@ const router = createBrowserRouter([
   },
   {
     path: "/Detalhes",
-    element: <Detalhes/>,
-  }
+    element: <Detalhes colorMap={colorMap} />,
+  },
 ]);
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <RouterProvider router = {router} />
+    <RouterProvider router={router} />
   </StrictMode>
-);  
+);

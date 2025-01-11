@@ -1,11 +1,11 @@
 import { useSearchParams } from "react-router-dom";
 import { Navigate, useNavigate } from "react-router-dom";
-import arrayPrincipais from "../components/Body";
 import { ChevronLeftIcon } from "lucide-react";
-import { array, func } from "prop-types";
 import { useState, useEffect } from "react";
 
-function Detalhes() {
+
+
+function Detalhes({colorMap}) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const name = searchParams.get("name");
@@ -14,26 +14,6 @@ function Detalhes() {
   const [pokemonStats, setPokemonStats] = useState(null);
   const [error, setError] = useState(null);
   const [typeColor, setTypeColor] = useState([]);
-  const [colorMap, setColorMap] = useState({
-    electric: "rgb(255, 180, 8)",
-    water: "rgb(99, 164, 255)",
-    fire: "red",
-    grass: "green",
-    psychic: "purple",
-    ice: "cyan",
-    rock: "gray",
-    ground: "brown",
-    flying: "skyblue",
-    bug: "limegreen",
-    dragon: "orange",
-    dark: "black",
-    fairy: "pink",
-    normal: "beige",
-    fighting: "maroon",
-    ghost: "indigo",
-    steel: "silver",
-    poison: "violet",
-  });
   const fetchinfoPOkemon = async () => {
     try {
       const response = await fetch(
@@ -134,6 +114,8 @@ function Detalhes() {
         </ul>
       </div>
     </div>
+   
   );
 }
 export default Detalhes;
+
