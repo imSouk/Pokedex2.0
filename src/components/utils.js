@@ -39,7 +39,7 @@ export const colorMap = {
 
 
 
-export const fetchPokemon = async (pokeName, setpokemonResponse) => {
+export async function fetchPokemon(pokeName,setpokemonResponse) {
   
   if (pokeName.trim() === "") {
     try {
@@ -105,5 +105,42 @@ export const fetchPokemon = async (pokeName, setpokemonResponse) => {
       console.error(error);
       alert("Confira o nome digitado e pressione enter novamente");
     }
+  }
+};
+
+export async function fetchinfoPokemon (name,setPokemonAbilities,setPokemonDetails,setPokemonStats,setTypeColor) {
+  try {
+    const response = await fetch(
+      `https://pokeapi.co/api/v2/pokemon/${name}`,
+      {
+        method: "GET",
+      }
+    );
+    const data = await response.json();
+    console.log(data);
+
+    setPokemonDetails({
+      id: data.id,
+      name: data.name,
+      type: data.types[0].type.name,
+      sprite: data.sprites.other.dream_world.front_default,
+      height: data.height,
+      weight: data.weight,
+      baseExpirience: data.base_experience,
+    });
+
+    setPokemonAbilities(
+      data.abilities.map((ability) => ability.ability.name)
+    );
+    setPokemonStats(
+      data.stats.map((stat) => ({
+        statName: stat.stat.name,
+        baseStat: stat.base_stat,
+      }))
+    );
+    setTypeColor(data.types[0].type.name);
+    console.log("resposta da api", data);
+  } catch (error) {
+    console.error("Erro ao buscar pokémons:", error);
   }
 };

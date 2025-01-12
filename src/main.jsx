@@ -6,7 +6,7 @@ import "./App.css";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { element } from "prop-types";
 import Detalhes from "./pages/Detalhes.jsx";
-import { colorMap } from "./components/utils.jsx";
+import { colorMap, fetchinfoPokemon } from "./components/utils.js";
 
 const router = createBrowserRouter([
   {
@@ -15,7 +15,7 @@ const router = createBrowserRouter([
   },
   {
     path: "/Detalhes",
-    element: <Detalhes colorMap={colorMap} />,
+    element: <Detalhes fetchinfoPokemon={fetchinfoPokemon} colorMap={colorMap} />,
   },
 ]);
 

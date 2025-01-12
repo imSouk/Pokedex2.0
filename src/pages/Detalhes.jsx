@@ -5,56 +5,20 @@ import { useState, useEffect } from "react";
 
 
 
-function Detalhes({colorMap}) {
+function Detalhes({colorMap,fetchinfoPokemon}) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const name = searchParams.get("name");
   const [pokemonDetails, setPokemonDetails] = useState(null);
   const [pokemonAbilities, setPokemonAbilities] = useState([]);
   const [pokemonStats, setPokemonStats] = useState(null);
-  const [error, setError] = useState(null);
   const [typeColor, setTypeColor] = useState([]);
-  const fetchinfoPOkemon = async () => {
-    try {
-      const response = await fetch(
-        `https://pokeapi.co/api/v2/pokemon/${name}`,
-        {
-          method: "GET",
-        }
-      );
-      const data = await response.json();
-      console.log(data);
-
-      setPokemonDetails({
-        id: data.id,
-        name: data.name,
-        type: data.types[0].type.name,
-        sprite: data.sprites.other.dream_world.front_default,
-        height: data.height,
-        weight: data.weight,
-        baseExpirience: data.base_experience,
-      });
-
-      setPokemonAbilities(
-        data.abilities.map((ability) => ability.ability.name)
-      );
-      setPokemonStats(
-        data.stats.map((stat) => ({
-          statName: stat.stat.name,
-          baseStat: stat.base_stat,
-        }))
-      );
-      setTypeColor(data.types[0].type.name);
-      console.log("resposta da api", data);
-    } catch (error) {
-      console.error("Erro ao buscar pokémons:", error);
-    }
-  };
+  
   useEffect(() => {
-    if (name) {
-      fetchinfoPOkemon();
+    if (name !=="") {
+      fetchinfoPokemon(name,setPokemonAbilities,setPokemonDetails,setPokemonStats,setTypeColor);
     }
-  }, [name]);
+  }, [name,fetchinfoPokemon]);
   function selectColor(pokemonType) {
     if (colorMap[pokemonType] && pokemonType !== "normal") {
       return colorMap[pokemonType];

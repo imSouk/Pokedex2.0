@@ -1,13 +1,10 @@
-import { useEffect, useState } from "react";
 import Header from "./components/Header.jsx";
 import Body from "./components/Body.jsx";
-import { use } from "react";
-import { colorMap, fetchPokemon, gens } from "./components/utils.jsx";
-import Detalhes from "./pages/Detalhes.jsx";
+import { colorMap, fetchPokemon, gens } from "./components/utils.js";
 
 
 
-<Detalhes colorMap={colorMap} />;
+
 function App() {
   return (
     <div>
