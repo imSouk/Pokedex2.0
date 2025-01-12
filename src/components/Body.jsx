@@ -10,25 +10,26 @@ function withNavigation(Component) {
   };
 }
 
-function Body({colorMap}) {
+function Body({colorMap,fetchPokemon}) {
   const navigate = useNavigate();
   const [r1, setR1] = useState(0);
-  const [r2, setR2] = useState(21);
+  const [r2, setR2] = useState(20);
   const [pokeName, setpokeName] = useState("");
   const [pokemonResponse, setpokemonResponse] = useState([]);
+
   useEffect(()=>{
-    fetchPokemon();
+    fetchPokemon("",setpokemonResponse);
   },[]);
   function onButtonPrevClick() {
-    if (r1 > 0 && r2 > 20) {
-      setR1(r1 - 20);
-      setR2(r2 - 20);
+    if (r1 > 0 && r2 > 19) {
+      setR1(r1 - 19);
+      setR2(r2 - 19);
     }
   }
   function onButtonNextClick() {
     if (r2 < 151) {
-      setR1(r1 + 20);
-      setR2(r2 + 20);
+      setR1(r1 + 19);
+      setR2(r2 + 19);
     }
   }
 
@@ -42,59 +43,12 @@ function Body({colorMap}) {
   };
   const onInputKeyDown = (event) => {
     if (event.key === "Enter") {
-      fetchPokemon();
+      fetchPokemon(pokeName);
     }
   };
-  const fetchPokemon = async () => {
-    if (pokeName.trim() === "") {
-      try {
-        const response = await fetch(
-          `https://pokeapi.co/api/v2/pokemon?limit=151`
-        );
-        const data = await response.json();
-        console.log(data)
-        const pokemonDetailsPromises = data.results.map((pokemon) =>
-          fetch(pokemon.url).then((res) => res.json())
-        );
-        const detailedPokemon = await Promise.all(pokemonDetailsPromises);
-        setpokemonResponse(
-          detailedPokemon.map((pokemon) => ({
-            name: pokemon.name,
-            id: pokemon.id,
-            type: pokemon.types[0].type.name,
-            sprite: pokemon.sprites.other.dream_world.front_default,
-          }))
-        );
-      } catch (error) {
-        console.error("Erro ao buscar pokémons:", error);
-      }
-    } else {
-      try {
-        const response = await fetch(
-          `https://pokeapi.co/api/v2/pokemon/${pokeName}`
-        );
-        if (!response.ok) {
-          setpokemonResponse([]);
-          alert("pokemon Não encontrado");
-          return;
-        }
-        const pokemon = await response.json();
-        setpokemonResponse([
-          {
-            name: pokemon.name,
-            id: pokemon.id,
-            type: pokemon.types[0].type.name,
-            sprite: pokemon.sprites.other.dream_world.front_default,
-          },
-        ]);
-      } catch (error) {
-        console.error(error);
-        alert("Confira o nome digitado e pressione enter novamente");
-      }
-    }
-  };
+
   return (
-    <div className="grid grid-rows-[auto_auto] justify-center gap-6 p-5">
+    <div className="w-screen bg-[url(/graywallpaper.jpg)] grid grid-rows-[auto_auto] justify-center gap-6 p-5 rounded-md">
       <input
         className="rounded-md pl-2 pb-1 bg-slate-200 m-auto w-[270px] "
         placeholder="Insira o nome do pokemon desejado"
@@ -104,22 +58,22 @@ function Body({colorMap}) {
         onKeyDown={onInputKeyDown}
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-5 justify-items-center">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-5 justify-items-center">
         {pokemonResponse.slice(r1,r2).map((pokemon, index) => {
           const typeColor = colorMap[pokemon.type.toLowerCase()] || "white";
           console.log("Cor correspondente:", colorMap[pokemon.type.toLowerCase()]);
           return (
             <div
-              className="grid bg-slate-200 w-[300px] y-[500px] rounded-3xl justify-items-center m-4 shadow-lg"
+              className="grid bg-slate-200 w-[125px] y-[180px] rounded-3xl justify-items-center m-4 shadow-lg"
               onClick={() => onDivClick(pokemon.name)}
               key={index}
             >
               <img
-                className=" w-[200px] h-[200px] pt-8 mb-4 "
+                className=" w-[100px] h-[100px] pt-8 mb-4 "
                 src={pokemon.sprite}
                 alt={pokemon.name}
               />
-              <p className=" text-2xl font-semibold font-mono mb-4">
+              <p className="  font-semibold font-mono mb-4">
                 {r1 + index + 1}.{pokemon.name}
               </p>
               <p
