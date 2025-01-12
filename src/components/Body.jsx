@@ -43,12 +43,12 @@ function Body({colorMap,fetchPokemon}) {
   };
   const onInputKeyDown = (event) => {
     if (event.key === "Enter") {
-      fetchPokemon(pokeName);
+      fetchPokemon(pokeName, setpokemonResponse);
     }
   };
 
   return (
-    <div className="w-screen bg-[url(/graywallpaper.jpg)] grid grid-rows-[auto_auto] justify-center gap-6 p-5 rounded-md">
+    <div className=" min-h-screen bg-[url(/abstract-background-gray-wallpaper-preview.jpg)] bg-cover bg-center bg-no-repeat grid grid-rows-[auto_auto] justify-center gap-6 p-5 rounded-md">
       <input
         className="rounded-md pl-2 pb-1 bg-slate-200 m-auto w-[270px] "
         placeholder="Insira o nome do pokemon desejado"
@@ -58,18 +58,18 @@ function Body({colorMap,fetchPokemon}) {
         onKeyDown={onInputKeyDown}
       />
 
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-5 justify-items-center">
+      <div className=" grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-5 justify-items-center min-h-screen[400px]">
         {pokemonResponse.slice(r1,r2).map((pokemon, index) => {
           const typeColor = colorMap[pokemon.type.toLowerCase()] || "white";
           console.log("Cor correspondente:", colorMap[pokemon.type.toLowerCase()]);
           return (
             <div
-              className="grid bg-slate-200 w-[125px] y-[180px] rounded-3xl justify-items-center m-4 shadow-lg"
+              className="grid bg-slate-200 w-[125px] h-[180px] rounded-3xl justify-items-center m-4 shadow-lg"
               onClick={() => onDivClick(pokemon.name)}
               key={index}
             >
               <img
-                className=" w-[100px] h-[100px] pt-8 mb-4 "
+                className=" w-[90px] h-[90px] pt-4 "
                 src={pokemon.sprite}
                 alt={pokemon.name}
               />
