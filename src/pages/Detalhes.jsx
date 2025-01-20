@@ -79,7 +79,7 @@ function Detalhes({colorMap,fetchinfoPokemon}) {
           <p className="font-bold">Base Stats</p>
           {pokemonStats?.map((stat, index) => (
             <li key={index}>
-              {stat.statName} : {stat.baseStat}
+              {stat.statName.charAt(0).toUpperCase() + stat.statName.slice(1)} : {stat.baseStat}
             </li>
           ))}
         </ul>

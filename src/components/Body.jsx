@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
+
+
 function withNavigation(Component) {
   return function NavigationComponent(props) {
     const navigate = useNavigate();
@@ -15,9 +17,14 @@ function Body({colorMap,fetchPokemon}) {
   const [r2, setR2] = useState(20);
   const [pokeName, setpokeName] = useState("");
   const [pokemonResponse, setpokemonResponse] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(()=>{
-    fetchPokemon("",setpokemonResponse);
+    setLoading(true)
+    fetchPokemon("",(response)=>{
+      setpokemonResponse(response)
+      setLoading(false);
+    });
   },[]);
   function onButtonPrevClick() {
     if (r1 > 0 && r2 > 19) {
@@ -56,13 +63,17 @@ function Body({colorMap,fetchPokemon}) {
         onChange={onInputChange}
         onKeyDown={onInputKeyDown}
       />
-
-      <div className=" grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-5 justify-items-center min-h-screen[400px]">
+      {loading?(
+        <div className="flex justify-center items-center w-full h-[300px]">
+        <div className="w-12 h-12 border-4 border-t-4 border-blue-500 rounded-full animate-spin"></div>
+      </div>
+      ):(
+        <div className=" grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-5 justify-items-center min-h-screen[400px]">
         {pokemonResponse.slice(r1,r2).map((pokemon, index) => {
           const typeColor = colorMap[pokemon.type.toLowerCase()] || "white";
           return (
             <div
-              className="grid bg-slate-200 w-[125px] h-[180px] rounded-3xl justify-items-center shadow-lg"
+              className="grid bg-slate-200 w-[125px] h-[180px] transform hover:scale-110 transition-all duration-200 ease-in-out rounded-3xl justify-items-center shadow-lg "
               onClick={() => onDivClick(pokemon.name)}
               key={index}
             >
@@ -84,6 +95,9 @@ function Body({colorMap,fetchPokemon}) {
           );
         })}
       </div>
+      )
+    }
+      
       <div className="flex justify-center">
         {r1 > 0 && (<button
           className="w-[100px] h-[25px] bg-slate-300 text-white rounded-md font-inter "
