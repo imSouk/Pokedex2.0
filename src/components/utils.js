@@ -1,22 +1,22 @@
 export const colorMap = {
-    electric: "rgb(255, 180, 8)",
-    water: "rgb(99, 164, 255)",
-    fire: "red",
-    grass: "green",
-    psychic: "purple",
-    ice: "cyan",
-    rock: "gray",
-    ground: "brown",
-    flying: "skyblue",
-    bug: "limegreen",
-    dragon: "orange",
-    dark: "black",
-    fairy: "pink",
-    normal: "beige",
-    fighting: "maroon",
-    ghost: "indigo",
-    steel: "silver",
-    poison: "violet",
+    electric: 'rgb(255, 180, 8)',
+    water: '#5599D2',
+    fire: '#BE3F39',
+    grass: '#8FC265',
+    psychic: '#BF5B99',
+    ice: '#71ABC2',
+    rock: '#845C39',
+    ground: '#937843',
+    flying: '#C3662D',
+    bug: '#689835',
+    dragon: '#52A596',
+    dark: '#86528C',
+    fairy: '#DAB0D3',
+    normal: '#A5A5A5',
+    fighting: '#C6703A',
+    ghost: '#9D70B1',
+    steel: '#5B8096',
+    poison: '#7C57A0',
   };
   export const gens = [{
     name : 'Kanto'
@@ -122,7 +122,7 @@ export async function fetchinfoPokemon (name,setPokemonAbilities,setPokemonDetai
     setPokemonDetails({
       id: data.id,
       name: data.name,
-      type: data.types[0].type.name,
+      type: data.types? data.types.map((t)=>t.type.name): [],
       sprite: data.sprites.other.dream_world.front_default,
       height: data.height,
       weight: data.weight,
@@ -138,7 +138,7 @@ export async function fetchinfoPokemon (name,setPokemonAbilities,setPokemonDetai
         baseStat: stat.base_stat,
       }))
     );
-    setTypeColor(data.types[0].type.name);
+    setTypeColor(data.types.length > 0 ? data.types[0].type.name : "normal");
     console.log("resposta da api", data);
   } catch (error) {
     console.error("Erro ao buscar pokémons:", error);

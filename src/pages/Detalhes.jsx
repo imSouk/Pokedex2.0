@@ -1,15 +1,14 @@
 import { useSearchParams } from "react-router-dom";
 import { Navigate, useNavigate } from "react-router-dom";
-import { ChevronLeftIcon } from "lucide-react";
+import { ChevronLeftIcon, Type } from "lucide-react";
 import { useState, useEffect } from "react";
-
 
 
 function Detalhes({colorMap,fetchinfoPokemon}) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const name = searchParams.get("name");
-  const [pokemonDetails, setPokemonDetails] = useState(null);
+  const [pokemonDetails, setPokemonDetails] = useState({});
   const [pokemonAbilities, setPokemonAbilities] = useState([]);
   const [pokemonStats, setPokemonStats] = useState(null);
   const [typeColor, setTypeColor] = useState([]);
@@ -29,9 +28,9 @@ function Detalhes({colorMap,fetchinfoPokemon}) {
 
   console.log(typeColor);
   return (
-    <div>
+    <div className="">
       <div
-        className=" flex justify-center w-screen h-[200px] rounded-b-3xl shadow-md"
+        className=" flex justify-center w-screen h-[150px] md:h-[200px] lg:h-[300px] rounded-b-3xl shadow-md"
         style={{ backgroundColor: selectColor(typeColor) }}
       >
         <button className="absolute top-4 left-4" onClick={() => navigate(-1)}>
@@ -39,7 +38,7 @@ function Detalhes({colorMap,fetchinfoPokemon}) {
         </button>
         {pokemonDetails ? (
           <img
-            className="justify-items-center"
+            className="justify-items-center w-[150px] h-[130px] md:w-[200px] md:h-[170px] lg:w-[250px] lg:h-[220px] "
             src={pokemonDetails.sprite}
             alt={pokemonDetails.name}
           />
@@ -47,19 +46,27 @@ function Detalhes({colorMap,fetchinfoPokemon}) {
           <p>carregando imagem....</p>
         )}
         {pokemonDetails ? (
-          <p className="ml-5 mt-10 text-center text-2xl font-semibold font-mono text-white">
-            # {pokemonDetails.id} <br />
-            {name}
+         <div>
+           <p className="ml-5 mt-10 text-2xl font-semibold font-mono text-white">
+            # {pokemonDetails.id}  
           </p>
+          <p className="ml-5 mt-1 text-2xl font-semibold font-mono text-white">{name} </p>
+          
+          <ul className="">
+              {pokemonDetails?.types?.map((type,index)=>
+              (<li className="" key={index}>{type}</li>)
+              )}
+          </ul>
+         </div>
+          
         ) : (
           <p>carregando...</p>
         )}
       </div>
-      <div className="flex">
-        <ul className="justify-items-center m-auto space-y-4">
+      <div className="lg:flex grid md:flex justify-center text-center md:text-left lg:text-left ">
+        <ul className="font-inter   ml-auto md:m-auto lg:m-auto space-y-2">
           <br />
-          <p>POKEDEX DATA </p>
-          <br />
+          <p className="font-bold text- md:text-2xl lg:text-3xl" >Pokedex Data </p>
           <li>Height: {pokemonDetails?.height} </li>
           <li>Weight: {pokemonDetails?.weight} </li>
           {pokemonAbilities.map((ability, index) => (
@@ -67,9 +74,9 @@ function Detalhes({colorMap,fetchinfoPokemon}) {
           ))}
           <li>Base Experience: {pokemonDetails?.baseExpirience} </li>
         </ul>
-        <ul className="justify-items-center m-auto">
+        <ul className="font-inter  m-auto md:m-auto lg:m-auto">
           <br /> <br /> <br />
-          <p>BASE STATS</p>
+          <p className="font-bold">Base Stats</p>
           {pokemonStats?.map((stat, index) => (
             <li key={index}>
               {stat.statName} : {stat.baseStat}

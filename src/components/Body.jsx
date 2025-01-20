@@ -1,6 +1,5 @@
-import React, { useEffect } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
-import { func } from "prop-types";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 function withNavigation(Component) {
@@ -61,10 +60,9 @@ function Body({colorMap,fetchPokemon}) {
       <div className=" grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-5 justify-items-center min-h-screen[400px]">
         {pokemonResponse.slice(r1,r2).map((pokemon, index) => {
           const typeColor = colorMap[pokemon.type.toLowerCase()] || "white";
-          console.log("Cor correspondente:", colorMap[pokemon.type.toLowerCase()]);
           return (
             <div
-              className="grid bg-slate-200 w-[125px] h-[180px] rounded-3xl justify-items-center m-4 shadow-lg"
+              className="grid bg-slate-200 w-[125px] h-[180px] rounded-3xl justify-items-center shadow-lg"
               onClick={() => onDivClick(pokemon.name)}
               key={index}
             >
@@ -73,11 +71,11 @@ function Body({colorMap,fetchPokemon}) {
                 src={pokemon.sprite}
                 alt={pokemon.name}
               />
-              <p className="  font-semibold font-mono mb-4">
+              <p className="   font-inter ">
                 {r1 + index + 1}.{pokemon.name}
               </p>
               <p
-                className="w-[80px] h-[25px] rounded-md text-center font-semibold mb-4"
+                className="w-[80px] h-[25px] rounded-md text-center font-inter  text-white pb-1.5 "
                 style={{ backgroundColor: typeColor }}
               >
                 {pokemon.type}{" "}
@@ -87,18 +85,20 @@ function Body({colorMap,fetchPokemon}) {
         })}
       </div>
       <div className="flex justify-center">
-        <button
-          className="w-[100px] h-[25px] bg-slate-300 rounded-md font-sans font-semibold"
+        {r1 > 0 && (<button
+          className="w-[100px] h-[25px] bg-slate-300 text-white rounded-md font-inter "
           onClick={onButtonPrevClick}
         >
-          PREV
-        </button>
-        <button
-          className="ml-10 w-[100px] h-[25px] bg-slate-300  font-sans font-semibold rounded-md "
+          Prev
+        </button>)}
+        {r2 < 151 && (
+          <button
+          className="ml-10 w-[100px] h-[25px] text-white bg-slate-300  font-inter  rounded-md "
           onClick={onButtonNextClick}
         >
-          NEXT
+          Next
         </button>
+        )}
       </div>
     </div>
   );
