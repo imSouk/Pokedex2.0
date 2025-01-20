@@ -49,8 +49,8 @@ function Body({colorMap,fetchPokemon}) {
   return (
     <div className=" min-h-screen bg-[url(/abstract-background-gray-wallpaper-preview.jpg)] bg-cover bg-center bg-no-repeat grid grid-rows-[auto_auto] justify-center gap-6 p-5 rounded-md">
       <input
-        className="rounded-md pl-2 pb-1 bg-slate-200 m-auto w-[270px] "
-        placeholder="Insira o nome do pokemon desejado"
+        className="rounded-md pl-2 pb-1 bg-slate-200 m-auto w-[240px] "
+        placeholder="search by pokemon name or id"
         type="text"
         value={pokeName}
         onChange={onInputChange}
