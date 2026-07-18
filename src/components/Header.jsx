@@ -1,4 +1,4 @@
-import pokedeximg from "./img/pokedex.png"
+import pokedeximg from "../assets/img/pokedex.png"
 function Header({gens}){
     return (
         <div>

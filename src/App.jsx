@@ -1,6 +1,6 @@
 import Header from "./components/Header.jsx";
 import Body from "./components/Body.jsx";
-import { colorMap, fetchPokemon, gens } from "./components/utils.js";
+import { colorMap, fetchPokemon, gens } from "./utils/utils.js";
 
 
 

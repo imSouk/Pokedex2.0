@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fluxo da Aplicação - Pokédex 2.0</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: system-ui, -apple-system, sans-serif; background: #f1f5f9; color: #1e293b; line-height: 1.6; padding: 2rem; }
+    .container { max-width: 900px; margin: 0 auto; }
+    h1 { font-size: 2rem; margin-bottom: 0.25rem; }
+    h2 { font-size: 1.4rem; margin: 2rem 0 1rem; border-left: 4px solid #3b82f6; padding-left: 0.75rem; }
+    h3 { font-size: 1.1rem; margin: 1.5rem 0 0.5rem; color: #334155; }
+    p, li { margin-bottom: 0.5rem; }
+    code { background: #e2e8f0; padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.9rem; }
+    pre { background: #1e293b; color: #e2e8f0; padding: 1rem; border-radius: 8px; overflow-x: auto; font-size: 0.85rem; margin: 0.75rem 0; }
+    .arrow { color: #3b82f6; font-weight: bold; margin: 0.25rem 0; }
+    .box { background: #fff; border-radius: 8px; padding: 1.25rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 1rem; }
+    .tag { display: inline-block; background: #dbeafe; color: #1e40af; padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; margin-right: 0.25rem; }
+    .flow { display: flex; flex-direction: column; align-items: flex-start; gap: 0.5rem; padding: 1rem; }
+    .flow-item { display: flex; align-items: flex-start; gap: 0.75rem; }
+    .flow-num { background: #3b82f6; color: #fff; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.85rem; flex-shrink: 0; }
+    hr { border: none; border-top: 1px solid #cbd5e1; margin: 1.5rem 0; }
+    .endpoint { background: #f0fdf4; border-left: 4px solid #22c55e; padding: 0.75rem 1rem; margin: 0.75rem 0; border-radius: 0 6px 6px 0; }
+    table { width: 100%; border-collapse: collapse; margin: 0.75rem 0; }
+    th, td { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid #e2e8f0; }
+    th { background: #f1f5f9; font-weight: 600; }
+    .subtitle { color: #64748b; margin-bottom: 1.5rem; }
+    .json-key { color: #60a5fa; }
+    .json-string { color: #a3e635; }
+    .json-number { color: #fbbf24; }
+    .json-boolean { color: #f472b6; }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <h1>Pokédex 2.0</h1>
+  <p class="subtitle">Documentação do fluxo da aplicação — do clique do usuário à resposta da API</p>
+
+  <div class="box">
+    <p><strong>Stack:</strong> React 18 + React Router 7 + Vite 5 + Tailwind CSS 3</p>
+    <p><strong>API:</strong> <a href="https://pokeapi.co/" target="_blank">PokéAPI v2</a> (pública, sem autenticação)</p>
+    <p><strong>Rotas:</strong> <code>/</code> (lista) e <code>/Detalhes?name=&lt;pokemon&gt;</code> (detalhe)</p>
+  </div>
+
+  <!-- ===== FLUXO GERAL ===== -->
+  <h2>1. Fluxo Geral da Aplicação</h2>
+
+  <div class="box flow">
+    <div class="flow-item"><span class="flow-num">1</span><div><strong>Usuário acessa <code>/</code></strong><br>O componente <code>Body</code> monta e dispara <code>useEffect</code>.</div></div>
+    <div class="arrow">↓</div>
+    <div class="flow-item"><span class="flow-num">2</span><div><strong><code>fetchPokemon("", callback)</code></strong><br>Chamada à PokéAPI para carregar os 151 Pokémon de Kanto.</div></div>
+    <div class="arrow">↓</div>
+    <div class="flow-item"><span class="flow-num">3</span><div><strong>Response é transformada</strong><br>Cada Pokémon vira um objeto <code>{ name, id, type, sprite }</code>.</div></div>
+    <div class="arrow">↓</div>
+    <div class="flow-item"><span class="flow-num">4</span><div><strong>Grid de cards é renderizado</strong><br>19 cards por página, com setas "Prev" / "Next".</div></div>
+    <div class="arrow">↓</div>
+    <div class="flow-item"><span class="flow-num">5</span><div><strong>Usuário digita + Enter</strong><br>Busca por nome ou ID: <code>fetchPokemon("pikachu", setState)</code>.</div></div>
+    <div class="arrow">↓</div>
+    <div class="flow-item"><span class="flow-num">6</span><div><strong>Usuário clica em um card</strong><br>Navega para <code>/Detalhes?name=&lt;pokemon&gt;</code>.</div></div>
+    <div class="arrow">↓</div>
+    <div class="flow-item"><span class="flow-num">7</span><div><strong><code>Detalhes</code> monta e chama <code>fetchinfoPokemon</code></strong><br>Busca dados completos do Pokémon na PokéAPI.</div></div>
+    <div class="arrow">↓</div>
+    <div class="flow-item"><span class="flow-num">8</span><div><strong>Tela de detalhes é renderizada</strong><br>Header colorido, sprite, stats, habilidades.</div></div>
+  </div>
+
+  <!-- ===== ROTA / (LISTA) ===== -->
+  <h2>2. Rota <code>/</code> — Lista de Pokémon</h2>
+
+  <h3>2.1. Primeiro carregamento (todos os 151 Pokémon)</h3>
+
+  <div class="endpoint">
+    <strong>Requisição:</strong> <code>GET https://pokeapi.co/api/v2/pokemon?limit=151</code>
+  </div>
+
+  <p><strong>Resposta da API (lista de resultados):</strong></p>
+  <pre>{
+  "results": [
+    { "name": "bulbasaur", "url": "https://pokeapi.co/api/v2/pokemon/1/" },
+    { "name": "ivysaur",   "url": "https://pokeapi.co/api/v2/pokemon/2/" }
+    <span style="color:#64748b">// ... até 151</span>
+  ]
+}</pre>
+
+  <p><strong>Em seguida</strong>, para cada <code>url</code> da lista, o código faz uma <strong>segunda requisição</strong> individual:</p>
+
+  <div class="endpoint">
+    <strong>Requisição (151x):</strong> <code>GET https://pokeapi.co/api/v2/pokemon/{id}</code><br>
+    <span style="font-size:0.85rem;color:#64748b;">Ex: GET https://pokeapi.co/api/v2/pokemon/1/</span>
+  </div>
+
+  <p><strong>Resposta individual (ex: bulbasaur):</strong></p>
+  <pre>{
+  "id": 1,
+  "name": "bulbasaur",
+  "types": [
+    { "slot": 1, "type": { "name": "grass" } },
+    { "slot": 2, "type": { "name": "poison" } }
+  ],
+  "sprites": {
+    "other": {
+      "dream_world": {
+        "front_default": "https://raw.githubusercontent.com/.../1.svg"
+      }
+    }
+  }
+}</pre>
+
+  <p><strong>Dado transformado para o estado do componente:</strong></p>
+  <pre>[
+  {
+    "name": "bulbasaur",
+    "id": 1,
+    "type": "grass",         <span style="color:#64748b">// só o primeiro tipo</span>
+    "sprite": "https://raw.githubusercontent.com/.../1.svg"
+  }
+  <span style="color:#64748b">// ... até 151</span>
+]</pre>
+
+  <hr>
+
+  <h3>2.2. Busca por nome ou ID (campo de busca)</h3>
+
+  <div class="endpoint">
+    <strong>Requisição:</strong> <code>GET https://pokeapi.co/api/v2/pokemon/{nomeOuId}</code><br>
+    <span style="font-size:0.85rem;color:#64748b;">Ex: GET https://pokeapi.co/api/v2/pokemon/pikachu</span>
+  </div>
+
+  <div class="box" style="background:#fef9c3;">
+    <strong>⚠️ Caso de erro (404 — Pokémon não encontrado):</strong>
+    <ol style="margin-top:0.5rem;padding-left:1.25rem;">
+      <li>Exibe <code>alert("pokemon Não encontrado")</code></li>
+      <li>Recarrega os 151 Pokémon automaticamente (fallback)</li>
+      <li>Retorna à lista completa</li>
+    </ol>
+  </div>
+
+  <p><strong>Resposta de sucesso:</strong> mesmo formato do item individual acima.</p>
+  <p><strong>Dado transformado (array com 1 elemento):</strong></p>
+  <pre>[
+  {
+    "name": "pikachu",
+    "id": 25,
+    "type": "electric",
+    "sprite": "https://raw.githubusercontent.com/.../25.svg"
+  }
+]</pre>
+
+  <!-- ===== ROTA /Detalhes ===== -->
+  <h2>3. Rota <code>/Detalhes?name=&lt;pokemon&gt;</code> — Página de Detalhes</h2>
+
+  <div class="endpoint">
+    <strong>Requisição:</strong> <code>GET https://pokeapi.co/api/v2/pokemon/{name}</code><br>
+    <span style="font-size:0.85rem;color:#64748b;">Ex: GET https://pokeapi.co/api/v2/pokemon/pikachu</span>
+  </div>
+
+  <p><strong>Resposta completa da API (ex: pikachu):</strong></p>
+  <pre>{
+  "id": 25,
+  "name": "pikachu",
+  "base_experience": 112,
+  "height": 4,
+  "weight": 60,
+  "types": [
+    { "slot": 1, "type": { "name": "electric" } }
+  ],
+  "abilities": [
+    { "ability": { "name": "static" }, "is_hidden": false, "slot": 1 },
+    { "ability": { "name": "lightning-rod" }, "is_hidden": true, "slot": 3 }
+  ],
+  "stats": [
+    { "base_stat": 35, "effort": 0, "stat": { "name": "hp" } },
+    { "base_stat": 55, "effort": 0, "stat": { "name": "attack" } },
+    { "base_stat": 40, "effort": 0, "stat": { "name": "defense" } },
+    { "base_stat": 50, "effort": 0, "stat": { "name": "special-attack" } },
+    { "base_stat": 50, "effort": 0, "stat": { "name": "special-defense" } },
+    { "base_stat": 90, "effort": 2, "stat": { "name": "speed" } }
+  ],
+  "sprites": {
+    "other": {
+      "dream_world": {
+        "front_default": "https://raw.githubusercontent.com/.../25.svg"
+      }
+    }
+  }
+}</pre>
+
+  <p><strong>Dados transformados para 4 estados diferentes:</strong></p>
+
+  <table>
+    <tr><th>Estado</th><th>Formato</th></tr>
+    <tr>
+      <td><code>pokemonDetails</code></td>
+      <td>
+        <pre style="margin:0;">{
+  id: 25,
+  name: "pikachu",
+  type: ["electric"],
+  sprite: "https://.../25.svg",
+  height: 4,
+  weight: 60,
+  baseExpirience: 112
+}</pre>
+      </td>
+    </tr>
+    <tr>
+      <td><code>pokemonAbilities</code></td>
+      <td><pre style="margin:0;">["static", "lightning-rod"]</pre></td>
+    </tr>
+    <tr>
+      <td><code>pokemonStats</code></td>
+      <td><pre style="margin:0;">[
+  { statName: "hp", baseStat: 35 },
+  { statName: "attack", baseStat: 55 }
+  // ...
+]</pre></td>
+    </tr>
+    <tr>
+      <td><code>typeColor</code></td>
+      <td><code>"electric"</code> (string do tipo primário)</td>
+    </tr>
+  </table>
+
+  <p><strong>Cor do header</strong> é determinada pelo <code>colorMap</code> em <code>utils.js</code>, que mapeia cada tipo para uma cor:</p>
+  <pre>{
+  electric: "rgb(255, 180, 8)",  water: "#5599D2",
+  fire: "#BE3F39",              grass: "#8FC265",
+  psychic: "#BF5B99",           ice: "#71ABC2",
+  rock: "#845C39",              ground: "#937843",
+  flying: "#C3662D",            bug: "#689835",
+  dragon: "#52A596",            dark: "#86528C",
+  fairy: "#DAB0D3",             normal: "#A5A5A5",
+  fighting: "#C6703A",          ghost: "#9D70B1",
+  steel: "#5B8096",             poison: "#7C57A0"
+}</pre>
+
+  <!-- ===== DIAGRAMA DE FLUXO COMPLETO ===== -->
+  <h2>4. Mapa de dados completo</h2>
+
+  <pre style="font-size:0.8rem;line-height:1.5;">
+
+  ┌────────────────────────────────────────────────────────────────────┐
+  │                        POKÉDEX 2.0                               │
+  │               Fluxo de dados: Usuário → API → Tela               │
+  └────────────────────────────────────────────────────────────────────┘
+
+  ┌───────────────────┐
+  │  index.html       │
+  │  └→ main.jsx      │
+  │     └→ BrowserRouter
+  └─────────┬─────────┘
+            │
+  ┌─────────▼─────────┐
+  │  ROTA "/"         │
+  │  App.jsx          │
+  │  ├→ Header        │
+  │  └→ Body          │
+  │     │             │
+  │     ├─ [mount] ───┤
+  │     │  useEffect  │
+  │     │  ↓          │
+  │     │  fetchPokemon("", callback)
+  │     │  ↓          │
+  │     │  GET /pokemon?limit=151 ──────┐
+  │     │          │                    │
+  │     │    ┌─────┘                    │
+  │     │    ▼                          │
+  │     │  GET /pokemon/1 (x151)        │
+  │     │  ↓                            │
+  │     │  Transforma em:               │
+  │     │  [{name,id,type,sprite}]      │
+  │     │  ↓                            │
+  │     │  setpokemonResponse(...)       │
+  │     │  ↓                            │
+  │     │  Renderiza grid (19 cards)    │
+  │     │                               │
+  │     ├─ [digita + Enter] ────────────┤
+  │     │  ↓                            │
+  │     │  fetchPokemon("nome", fn)     │
+  │     │  ↓                            │
+  │     │  GET /pokemon/{nome} ─────────┐
+  │     │          │                    │
+  │     │     [200]▼              [404]▼
+  │     │  [{name,id,type,       alert() +
+  │     │    sprite}]            fallback
+  │     │  ↓                     lista 151
+  │     │  setpokemonResponse( )
+  │     │                               │
+  │     ├─ [clica card] ────────────────┤
+  │     │  ↓                            │
+  │     │  navigate("/Detalhes?name=X") │
+  │     │                               │
+  └─────┼───────────────────────────────┘
+        │
+  ┌─────▼───────────────────────────────┐
+  │  ROTA "/Detalhes"                   │
+  │  Detalhes.jsx                       │
+  │     │                               │
+  │     ├─ [mount, name muda] ──────────┤
+  │     │  useEffect                    │
+  │     │  ↓                            │
+  │     │  fetchinfoPokemon(name, ...)  │
+  │     │  ↓                            │
+  │     │  GET /pokemon/{name} ─────────┐
+  │     │  ↓                            │
+  │     │  Transforma response em:      │
+  │     │  ├→ pokemonDetails  { obj }   │
+  │     │  ├→ pokemonAbilities [arr]    │
+  │     │  ├→ pokemonStats     [arr]    │
+  │     │  └→ typeColor       (string)  │
+  │     │  ↓                            │
+  │     │  Renderiza:                   │
+  │     │  - Header colorido            │
+  │     │  - Imagem do Pokémon          │
+  │     │  - Dados (height, weight...)  │
+  │     │  - Stats (HP, attack...)      │
+  │     └───────────────────────────────┤
+  │  [← botão voltar]                   │
+  │  navigate(-1)                       │
+  └─────────────────────────────────────┘
+
+  </pre>
+
+  <!-- ===== ESTRUTURA DO PROJETO ===== -->
+  <h2>5. Estrutura de Arquivos (apenas código-fonte)</h2>
+
+  <pre style="font-size:0.85rem;">
+src/
+├── main.jsx                    # Router setup (BrowserRouter + rotas)
+├── App.jsx                     # Layout raiz (Header + Body)
+├── index.css                   # Tailwind + fonte Inter
+├── components/
+│   ├── Header.jsx              # Banner superior (logotipo)
+│   ├── Body.jsx                # Lista/busca/paginação de Pokémon
+│   └── utils.js                # colorMap, gens, fetchPokemon, fetchinfoPokemon
+├── pages/
+│   └── Detalhes.jsx            # Página de detalhes do Pokémon
+└── fontes/inter/               # Fontes locais Inter (fallback)
+  </pre>
+
+  <!-- ===== RESUMO DAS CHAMADAS ===== -->
+  <h2>6. Resumo das Chamadas à API</h2>
+
+  <table>
+    <tr><th>Função</th><th>Endpoint</th><th>Quando</th><th>Resposta usada para</th></tr>
+    <tr>
+      <td><code>fetchPokemon("")</code></td>
+      <td><code>GET /pokemon?limit=151</code> + 151x <code>GET /pokemon/{id}</code></td>
+      <td>Ao montar a página inicial</td>
+      <td>Lista de cards com <code>{name, id, type, sprite}</code></td>
+    </tr>
+    <tr>
+      <td><code>fetchPokemon(nome)</code></td>
+      <td><code>GET /pokemon/{nome}</code></td>
+      <td>Ao pressionar Enter no campo de busca</td>
+      <td>Card único do Pokémon pesquisado</td>
+    </tr>
+    <tr>
+      <td><code>fetchinfoPokemon(nome)</code></td>
+      <td><code>GET /pokemon/{nome}</code></td>
+      <td>Ao entrar na página de detalhes</td>
+      <td>Dados completos: stats, habilidades, tipos, sprite</td>
+    </tr>
+  </table>
+
+  <hr>
+
+  <p style="text-align:center;color:#64748b;font-size:0.85rem;">
+    Documentação gerada em julho de 2026 — Pokédex 2.0
+  </p>
+
+</div>
+</body>
+</html>
